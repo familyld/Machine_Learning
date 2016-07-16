@@ -150,8 +150,7 @@
 
 可以看到，这样一来，好瓜的3个属性值与非好瓜的属性值都不相同。因此，根据书中图1.2的版本空间描述方式，可以得到本题的版本空间图如下：
 
-
-
+![版本空间](https://github.com/familyld/Machine_Learning/blob/master/graph/version_space.pdf)
 
 #### 1.2
 
