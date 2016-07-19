@@ -139,3 +139,43 @@ $$\ell(\mathbf{w},b) = \sum_{i=1}^m \ln p(c_i | \mathbf{x_i;w};b)\\
 $$E(\beta) = \sum_{i=1}^m (-y_i\beta^T\hat{x_i} + \ln (1+e^{\beta^T\mathbf{\hat{x_i}}}))$$
 
 这是一个关于 $\beta$ 的高阶可导连续凸函数，可以用最小二乘求（要求矩阵的逆，计算开销较大），也可以用数值优化算法如**梯度下降法（gradient descent method）**、**牛顿法（Newton method）**等逐步迭代来求最优解（可能陷入局部最优解）。
+
+## 线性判别分析（LDA）
+
+#### 二分类
+
+**线性判别分析（Linear Discriminant Analysis，简称LDA）**，同样是利用线性模型，LDA提供一种不同的思路。在LDA中，我们不再是拟合数据分布的曲线，而是**将所有的数据点投影到一条直线上**，使得**同类点的投影尽可能近，不同类点的投影尽可能远**。
+
+具体来说，投影值 $y = \mathbf{w}^T\mathbf{x}$，我们不再用 $y$ 逼近样例的真实标记，而是希望同类样例的投影值尽可能相近，异类样例的投影值尽可能远离。如何实现呢？首先，同类样例的投影值尽可能相近意味着**同类样例投影值的协方差应尽可能小**；然后，异类样例的投影值尽可能远离意味着**异类样例投影值的中心应尽可能大**。合起来，就等价于最大化：
+
+$$J = \frac{\Vert \mathbf{w}^T\mu_0 - \mathbf{w}^T\mu_1 \Vert^2_2}{\mathbf{w}^T\Sigma_0\mathbf{w}+\mathbf{w}^T\Sigma_1\mathbf{w}}\\
+= \frac{\mathbf{w}^T(\mu_0 - \mu_1)(\mu_0 - \mu_1)^T\mathbf{w}}{\mathbf{w}^T(\Sigma_0+\Sigma_1)\mathbf{w}}$$
+
+其中，分子的 $\mu_i$ 表示第i类样例的**均值向量**（即表示为向量形式后对各维求均值所得的向量）。分子表示的是两类样例的均值向量投影点（也即类中心）之差的 $\ell_2$ 范数的平方，这个值越大越好。 分母中的 $\Sigma_i$ 表示第i类样例的**协方差矩阵**。分母表示两类样例投影后的协方差之和，这个值越小越好。
+
+定义**类内散度矩阵（within-class scatter matrix）**：
+
+$$S_w = \sigma_0 + \sigma_1\\
+= \sum_{x \in X_0} (\mathbf{x} - \mu_0)(\mathbf{x} - \mu_0)^T + \sum_{x \in X_1} (\mathbf{x} - \mu_1)(\mathbf{x} - \mu_1)^T$$
+
+定义**类间散度矩阵（between-class scatter matrix）**：
+
+$$S_b = (\mu_0 - \mu_1)(\mu_0 - \mu_1)^T$$
+
+这两个矩阵的规模都是 $d\times d$，其中 $d$ 是样例的维度（属性数目）。于是可以重写目标函数为：
+
+$$J = \frac{\mathbf{w}^T S_b \mathbf{w}}{\mathbf{w}^T S_w \mathbf{w}}$$
+
+也即 $S_b$ 和 $S_w$ 的**广义瑞利熵（generalized Rayleigh quotient）**。
+
+可以注意到，分子和分母中 $w$ 都是二次项，因此，**最优解与 $w$ 的大小无关，只与方向有关**。
+
+令分母为1，用拉格朗日乘子法把约束转换为方程，再稍加变换我们便可以得出：
+
+$$\mathbf{w} = S_w^{-1}(\mu_0 - \mu_1)$$
+
+但一般不直接对矩阵 $S_w$ 求逆，而是采用**奇异值分解**的方式。
+
+#### 多分类
+
+多分类LDA与二分类不同在于，学习的是一个规模为 $d \times d'$ 的投影矩阵 $\mathbf{W}$，而不是规模为 $d \times 1$ 的投影向量 $\mathbf{w}$。这个投影矩阵把样本投影到 $d'$ 维空间（或者说 $d'$ 维超平面）上，由于 $d'$ 通常远小于样例原来的属性数目 $d$，且投影过程用到了类别信息（标记值），所以LDA也常常被视为一种**监督降维技术**。（注：$d'$ 是矩阵 $S_w^{-1}S_b$ 的非零特征值数目）
