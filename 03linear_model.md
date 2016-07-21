@@ -256,6 +256,20 @@ Quora上就有这个[问题](https://www.quora.com/Why-do-we-need-the-bias-term-
 
 式2：$E(\beta) = \sum_{i=1}^m (-y_i\beta^T\hat{x_i} + \ln (1+e^{\beta^T\mathbf{\hat{x_i}}}))$
 
+笔记中已经提到了，检验一个函数是否凸函数，可以看其二阶导数是否在区间上恒大于0.
+
+目标函数（也即sigmoid函数）：
+
+![sigmoid function](https://github.com/familyld/Machine_Learning/blob/master/graph/second_derivative_of_sigmoid_function.png?raw=true)
+
+显然，sigmoid的二阶导数在自变量大于0处取值小于0，所以它不是凸函数。
+
+对数似然函数：
+
+![loss funciton](https://github.com/familyld/Machine_Learning/blob/master/graph/second_derivative_of_loss_function.png?raw=true)
+
+可以看到这个函数在区间上恒大于0（两边无限延伸），符合凸函数的要求，但我不太明白的是为什么作者把这个函数仍然称为对数似然函数，对数几率回归目标是最大化对数似然，最小化损失，私以为把这个函数称为损失函数更合适。
+
 #### 3.3
 
 >问：编程实现对率回归，并给出西瓜数据集3.0α上的结果
