@@ -296,8 +296,13 @@ Quora上就有这个[问题](https://www.quora.com/Why-do-we-need-the-bias-term-
 | 16 | 0.593 | 0.042 | 否 |
 | 17 | 0.719 | 0.103 | 否 |
 
-首先将数据存入excel表，存为csv格式。再将是/否 转为1/0
-参考《机器学习实战》的内容。本题分别写了梯度上升方法以及随机梯度上升方法。对书本上的程序做了一点点改动
+把这个数据集转换为csv表格，并且注意要把**标记转换为0、1，注意不是-1、+1！！逻辑回归的二分类标记必须是0、1，对应于sigmoid函数的值域。**
+
+代码实现放在了code文件下的[exercise3.3.ipynb](https://github.com/familyld/Machine_Learning/blob/master/code/exercise3.3.ipynb)，不过Github似乎不支持ipynb的在线预览，可以下载下来用ipython notebook打开。结果如下：
+
+![result](https://github.com/familyld/Machine_Learning/blob/master/graph/exercise3.3.png?raw=true)
+
+用了梯度上升法来更新权值，步长0.05，最大迭代次数2000次。上图中红色为好瓜，绿色为坏瓜，圆形标记表示预测正确，叉号标记表示预测错误。可以看到有一个好瓜被预测为坏瓜，有两个坏瓜被预测为好瓜。事实上，在200次迭代后，已经基本定型了，权值并没有太大的变化。
 
 #### 3.4
 
