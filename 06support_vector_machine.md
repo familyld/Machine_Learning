@@ -26,18 +26,54 @@
 
 ![SVM](http://research.microsoft.com/en-us/um/people/manik/projects/trade-off/figs/svm2.PNG)
 
-上图的实线就是划分超平面，可以通过方程 $\mathbf{w}^T\mathbf{x}+b=0$ 来描述，在二维样本空间中就是一条直线。图中的 $\phi(\mathbf{x})$ 是使用了核函数进行映射，这里暂且不讨论。$\mathbf{w}$ 是线性模型的权重向量，也是**划分超平面的法向量，决定着超平面的方向**。偏置项 $b$ 又被称为 **位移项，决定了超平面和空间原点之间的距离**。
+上图的实线就是划分超平面，在线性模型中可以通过方程 $\mathbf{w}^T\mathbf{x}+b=0$ 来描述，在二维样本空间中就是一条直线。图中的 $\phi(\mathbf{x})$ 是使用了核函数进行映射，这里暂且不讨论。$\mathbf{w}$ 是线性模型的权重向量（又叫**投影向量**），也是**划分超平面的法向量，决定着超平面的方向**。偏置项 $b$ 又被称为 **位移项，决定了超平面和空间原点之间的距离**。
 
 假设超平面能够将所有训练样本正确分类，也即对于所有标记为+1的点有 $\mathbf{w}^T\mathbf{x}+b>0$，所有标记为-1的点有 $\mathbf{w}^T\mathbf{x}+b<0$。只要这个超平面存在，那么我们必然可以对 $\mathbf{w}$ 和 $b$ 进行适当的**线性放缩**，使得：
 
 $$\mathbf{w}^T\mathbf{x}+b\geq+1,\quad y_i = +1$$
 $$\mathbf{w}^T\mathbf{x}+b\leq-1,\quad y_i = -1$$
 
-而SVM中定义**使得上式等号成立的训练样本点**就是**支持变量（support vector）**，它们是距离超平面最近的几个样本点，也即上面图中两条虚线上的点（但图中存在比支持向量距离超平面更近的点，这跟软间隔有关，这里暂不讨论）。
+而SVM中定义**使得上式等号成立的训练样本点**就是**支持向量（support vector）**（如果叫作**支持点**可能更好理解一些，因为事实上就是样本空间中的数据点，但因为我们在表示数据点的时候一般写成向量形式，所以就称为支持向量），它们是距离超平面最近的几个样本点，也即上面图中两条虚线上的点（但图中存在比支持向量距离超平面更近的点，这跟**软间隔**有关，这里暂不讨论）。
 
-怎么计算样本空间中任意数据点到划分超平面的距离呢？
+在SVM中，我们希望实现的是**最大化两类支持向量到超平面的距离之和**，那首先就得知道怎么计算距离。**怎样计算样本空间中任意数据点到划分超平面的距离**呢？
 
 ![PointToHyperPlane](https://github.com/familyld/Machine_Learning/blob/master/graph/PointToHyperPlane.png?raw=true)
+
+画了一个图，方便讲解。图中蓝色线即超平面，对应直线方程 $\mathbf{w}^T\mathbf{x}+b=0$。投影向量 $\mathbf{w}$垂直于超平面，点 $x$ 对应向量 $\mathbf{x}$，过点 $x$ 作超平面的垂线，交点 $x_0$ 对应向量 $\mathbf{x_0}$。假设由点 $x_0$ 指向 点 $x$ 的向量为 $\mathbf{r}$，长度（也即点 $x$ 与超平面的距离）为 $r$。有两种方法计算可以计算出 $r$ 的大小：
+
+#### 方法1：向量计算
+
+> 由向量加法定义可得 $\mathbf{x} = \mathbf{x_0} + \mathbf{r}$。
+
+> 那么向量 $\mathbf{r}$ 等于什么呢？它等于这个方向的单位向量乘上 $r$，也即有 $\mathbf{r} = \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$
+
+> 因此又有 $\mathbf{x} = \mathbf{x_0} + \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$。
+
+> 由于点 $x_0$ 在超平面上，所以有 $\mathbf{w}^T\mathbf{x_0}+b=0$
+
+> 由 $\mathbf{x} = \mathbf{x_0} + \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$ 可得 $\mathbf{x_0} = \mathbf{x} - \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$，代入直线方程消去 $\mathbf{x_0}$：
+
+> $$\mathbf{w}^T\mathbf{x_0}+b
+= \mathbf{w}^T(\mathbf{x} - \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r)+b
+= 0$$
+
+> 简单变换即可得到:
+
+> $$r = \frac{\mathbf{w}^T\mathbf{x}+b}{\Vert \mathbf{w} \Vert}$$
+
+> 又因为我们取距离为正值，所以要加上绝对值符号：
+
+> $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
+
+#### 方法2：点到直线距离公式
+
+> 假设直线方程为 $ax + by + c= 0$，那么有点到直线距离公式：
+
+> $$r = \frac{|ax + by + c|}{\sqrt{a^2+b^2}}$$
+
+> 而这里的直线方程是 $\mathbf{w}^T\mathbf{x}+b=0$，也即 $a=\mathbf{w}^T$，$b=0$，$c=b$（b为位移项）。代入可得：
+
+> $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\sqrt{\mathbf{w}^T\mathbf{w}+0^2}} = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
 
 ## 习题
 
@@ -91,3 +127,14 @@ $$\mathbf{w}^T\mathbf{x}+b\leq-1,\quad y_i = -1$$
 > 问：试设计一个能显著减少SVM中支持向量的数目而不显著降低泛化性能的方法。
 
 
+分享一些蛮不错的问题和讲解：
+
+- [支持向量机(SVM)是什么意思？](https://www.zhihu.com/question/21094489)
+- [支持向量机中的函数距离和几何距离怎么理解？](https://www.zhihu.com/question/20466147)
+- [几何间隔为什么是离超平面最近的点到超平面的距离？](https://www.zhihu.com/question/30217705)
+- [SMO优化算法（Sequential minimal optimization）](http://www.cnblogs.com/jerrylead/archive/2011/03/18/1988419.html)
+- [Linear SVM 和 LR 有什么异同？](https://www.zhihu.com/question/26768865)
+- [SVM计算最优分类超平面时是否使用了全部的样本数据？](https://www.zhihu.com/question/46862433)
+- [现在还有必要对SVM深入学习吗？](https://www.zhihu.com/question/41066458)
+- [SVM的核函数如何选取？](https://www.zhihu.com/question/21883548)
+- [支持向量机通俗导论（理解SVM的三层境界）](http://blog.csdn.net/v_july_v/article/details/7624837)
