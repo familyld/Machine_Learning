@@ -22,6 +22,8 @@
 
 分类学习试图从样本空间中找到一个超平面，使得该超平面可以将不同类的样本分隔开。但是满足这样条件的平面可能有很多，哪一个才是最好的呢？
 
+#### 支持向量
+
 在SVM中，我们试图找到**处于两类样本正中间的超平面**，因为这个超平面**对训练数据局部扰动的容忍性最好**，新样本最不容易被误分类。也就是说这个超平面**对未见示例的泛化能力最强**。
 
 ![SVM](http://research.microsoft.com/en-us/um/people/manik/projects/trade-off/figs/svm2.PNG)
@@ -41,7 +43,7 @@ $$\mathbf{w}^T\mathbf{x}+b\leq-1,\quad y_i = -1$$
 
 画了一个图，方便讲解。图中蓝色线即超平面，对应直线方程 $\mathbf{w}^T\mathbf{x}+b=0$。投影向量 $\mathbf{w}$垂直于超平面，点 $x$ 对应向量 $\mathbf{x}$，过点 $x$ 作超平面的垂线，交点 $x_0$ 对应向量 $\mathbf{x_0}$。假设由点 $x_0$ 指向 点 $x$ 的向量为 $\mathbf{r}$，长度（也即点 $x$ 与超平面的距离）为 $r$。有两种方法计算可以计算出 $r$ 的大小：
 
-#### 方法1：向量计算
+##### 方法1：向量计算
 
 > 由向量加法定义可得 $\mathbf{x} = \mathbf{x_0} + \mathbf{r}$。
 
@@ -65,15 +67,44 @@ $$\mathbf{w}^T\mathbf{x}+b\leq-1,\quad y_i = -1$$
 
 > $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
 
-#### 方法2：点到直线距离公式
+##### 方法2：点到直线距离公式
 
-> 假设直线方程为 $ax + by + c= 0$，那么有点到直线距离公式：
+> 假设直线方程为 $ax_1 + bx_2 + c= 0$，那么有点到直线距离公式：
 
-> $$r = \frac{|ax + by + c|}{\sqrt{a^2+b^2}}$$
+> $$r = \frac{|ax + bx_2 + c|}{\sqrt{a^2+b^2}}$$
 
-> 而这里的直线方程是 $\mathbf{w}^T\mathbf{x}+b=0$，也即 $a=\mathbf{w}^T$，$b=0$，$c=b$（b为位移项）。代入可得：
+> 令 $\mathbf{w} = (a,b)$，$\mathbf{x} = (x_1,x_2)$，则可以把 $ax_1 + bx_2$ 写成向量形式 $\mathbf{w}^T\mathbf{x}$。把截距项设为$b$，则直线方程变为 $\mathbf{w}^T\mathbf{x}+b=0$，代入距离公式可得：
 
-> $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\sqrt{\mathbf{w}^T\mathbf{w}+0^2}} = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
+> $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\sqrt{\mathbf{w}^T\mathbf{w}}} = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
+
+> 该式扩展到多维情况下也是通用的。
+
+#### 间隔
+
+前面已经提到，我们希望实现的是**最大化两类支持向量到超平面的距离之和**，而根据定义，所有支持向量都满足：
+
+$$\mathbf{w}^T\mathbf{x}+b = +1,\quad y_i = +1$$
+$$\mathbf{w}^T\mathbf{x}+b = -1,\quad y_i = -1$$
+
+代入前面的距离公式可以得到支持向量到超平面的距离为 $\frac{1}{\Vert \mathbf{w} \Vert}$。
+
+定义**间隔（margin）**为**两个异类支持向量到超平面的距离之和**：
+
+$$\gamma = 2 \cdot \frac{1}{\Vert \mathbf{w} \Vert} = \frac{2}{\Vert \mathbf{w} \Vert}$$
+
+SVM的目标便是找到**具有最大间隔（maximum margin）**的划分超平面，也即找到使 $\gamma$ 最大的参数 $\mathbf{w}$ 和 $b$：
+
+$$\max_{\mathbf{w},b} \frac{2}{\Vert \mathbf{w} \Vert} \quad s.t. \quad y_i(\mathbf{w}^T\mathbf{x}+b) \geq 1, \quad  i=1,2,...,m$$
+
+约束部分指的是全部样本都被正确分类，此时标记乘上预测值应该是一个大于等于1的数值。
+
+看上去间隔只与 $\mathbf{w}$ 有关，但实际上位移项 $b$ 也通过约束影响着 $\mathbf{w}$ 的取值，进而对间隔产生影响。
+
+由于最大化 $\Vert \mathbf{w} \Vert^{-1}$ 等价于最小化 $\Vert \mathbf{w} \Vert^{2}$，所以可以重写为：
+
+$$\max_{\mathbf{w},b} \frac{1}{2} \Vert \mathbf{w}^2 \Vert \quad s.t. \quad y_i(\mathbf{w}^T\mathbf{x}+b) \geq 1, \quad  i=1,2,...,m$$
+
+这便是**支持向量机的基本型**。
 
 ## 习题
 
