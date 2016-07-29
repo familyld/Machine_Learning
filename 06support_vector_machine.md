@@ -262,11 +262,11 @@ $$f(\mathbf{x}) = \mathbf{w}^T \phi(\mathbf{x}) + b = \sum_{i=1}^m a_i y_i \phi(
 
 | 名称 | 表达式 | 参数 |
 |:-:|:-:|:-:|
-| 线性核 | $\kappa(v_1,v_2)=<v_1,v_2>$ |-|
-| 多项式核 | $\kappa(v_1,v_2)=(<v_1,v_2>)^d$ | $d \geq 1$为多项式的次数，d=1时退化为线性核 |
-| 高斯核（亦称RBF核） | $\kappa(v_1,v_2)=\exp (-\frac{\Vert v_1-v_2 \Vert ^2}{2\sigma^2})$ | $\sigma>0$ 为高斯核的带宽（width） |
-| 拉普拉斯核 | $\kappa(v_1,v_2)=\exp (-\frac{\Vert v_1-v_2 \Vert}{\sigma})$| $\sigma>0$ |
-| Sigmoid核 | $\kappa(v_1,v_2)=\tanh(\beta<v_1,v_2>+\theta)$ | $tanh$ 为双曲正切函数，$\beta>0,\theta<0$ |
+| 线性核 | $\kappa(\mathbf{x}_i,\mathbf{x}_j)=\mathbf{x}_i^T\mathbf{x}_j$ |-|
+| 多项式核 | $\kappa(\mathbf{x}_i,\mathbf{x}_j)=(\mathbf{x}_i^T\mathbf{x}_j)^d$ | $d \geq 1$为多项式的次数，d=1时退化为线性核 |
+| 高斯核（亦称RBF核） | $\kappa(\mathbf{x}_i,\mathbf{x}_j)=\exp (-\frac{\Vert \mathbf{x}_i-\mathbf{x}_j \Vert ^2}{2\sigma^2})$ | $\sigma>0$ 为高斯核的带宽（width） |
+| 拉普拉斯核 | $\kappa(\mathbf{x}_i,\mathbf{x}_j)=\exp (-\frac{\Vert \mathbf{x}_i-\mathbf{x}_j \Vert}{\sigma})$| $\sigma>0$ |
+| Sigmoid核 | $\kappa(\mathbf{x}_i,\mathbf{x}_j)=\tanh(\beta \mathbf{x}_i^T\mathbf{x}_j+\theta)$ | $tanh$ 为双曲正切函数，$\beta>0,\theta<0$ |
 
 特别地，**文本数据一般用线性核**，**情况不明可尝试高斯核**。
 
@@ -276,8 +276,13 @@ $$f(\mathbf{x}) = \mathbf{w}^T \phi(\mathbf{x}) + b = \sum_{i=1}^m a_i y_i \phi(
 
 - 若 $\kappa_1$ 和 $\kappa_2$ 都是核函数，则其直积 $\kappa_1 \otimes \kappa_2(\mathbf{x},\mathbf{z}) = \kappa_1(\mathbf{x},\mathbf{z})\kappa_2(\mathbf{x},\mathbf{z})$ 也是核函数。
 
-- 若 $\kappa_1$是核函数，则对于任意函数 $g(\mathbf{x})$，$\kappa(\mathbf{x},\mathbf{z}) = g(\mathbf{x}) \kappa_1(\mathbf{x},\mathbf{z}) g(\mathbf{z})$ 也是核函数。
+- 若 $\kappa_1$ 是核函数，则对于任意函数 $g(\mathbf{x})$，$\kappa(\mathbf{x},\mathbf{z}) = g(\mathbf{x}) \kappa_1(\mathbf{x},\mathbf{z}) g(\mathbf{z})$ 也是核函数。
 
+## 软间隔与正则化
+
+上一节中，通过利用核函数映射来解决非线性可分的问题，但现实中很难找到合适的核函数，即使某个核函数能令训练集在新特征空间中线性可分，也难保这不是**过拟合**造成的结果。
+
+缓解该问题的一个思路就是**允许支持向量机在一些样本上出错**，为此，引入**软间隔（soft margin）**的概念。
 
 ## 习题
 
