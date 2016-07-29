@@ -213,7 +213,7 @@ $$\max_{\mathbf{a}} \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i 
 
 注意到对偶问题中，涉及到 $\phi(\mathbf{x}_i)^T \phi(\mathbf{x}_j)$ 的计算，也即 $x_i$ 和 $x_j$ 映射到高维特征空间后的内积（比如 $x_i = (1,2,3)$，$x_j = (4,5,6)$，那么内积 $x_i^Tx_j$ 就等于 $1*4+2*5+3*6=32$），由于**特征空间维数可能很高**，所以**直接计算映射后特征向量的内积是很困难的**，如果映射后的特征空间是无限维，根本无法进行计算。
 
-为了解决这样的问题，就引入了**核函数（kernal function）**。
+为了解决这样的问题，就引入了**核函数（kernel function）**。
 
 打个比方，假设输入空间是二维的，每个样本点有两个属性 $x$ 和 $y$，存在映射将每个样本点映射到三维空间：
 
@@ -238,11 +238,46 @@ $= \kappa(\mathbf{v}_1,\mathbf{v}_2)$
 
 #### 为什么需要核函数
 
-这里的例子为了计算方便，映射的空间维数依然很低，这里稍微解释一下**为什么需要核函数**？假设原始空间是二维的，那么对于两个属性 $x$ 和 $y$，取一阶二阶的组合只有5个（也即 $x^2$，$y^2$，$x$，$y$，$xy$）。但当原始空间是三维的时候，仍然取一阶二阶，组合就多达19个了（也即 $x$，$y$，$z$，$xy$，$xz$，$yz$，$x^2y$，$x^2z$，$y^2x$，$y^2z$，$z^2x$，$z^2y$，$x^2yz$，$xy^2z$，$xyz^2$，$x^2y^2z$，$x^2yz^2$，$xy^2z^2$，$xyz$）。**随着原始空间维数增长，新空间的维数是呈爆炸性上升的**。何况显示中我们遇到的问题的原始空间往往本来就已经是高维的，如果再进行映射，新特征空间的维度是难以想象的。
+这里的例子为了计算方便，映射的空间维数依然很低，这里稍微解释一下**为什么需要核函数**？假设原始空间是二维的，那么对于两个属性 $x$ 和 $y$，取一阶二阶的组合只有5个（也即 $x^2$，$y^2$，$x$，$y$，$xy$）。但当原始空间是三维的时候，仍然取一阶二阶，组合就多达19个了（也即 $x$，$y$，$z$，$xy$，$xz$，$yz$，$x^2y$，$x^2z$，$y^2x$，$y^2z$，$z^2x$，$z^2y$，$x^2yz$，$xy^2z$，$xyz^2$，$x^2y^2z$，$x^2yz^2$，$xy^2z^2$，$xyz$）。**随着原始空间维数增长，新空间的维数是呈爆炸性上升的**。何况现实中我们遇到的问题的原始空间往往本来就已经是高维的，如果再进行映射，新特征空间的维度是难以想象的。
 
-然而有了核函数，我们就可以在原始空间中进行计算，而**不必直接计算高维甚至无穷维特征空间中的内积**。
+然而有了核函数，我们就可以在原始空间中通过函数 $\kappa(\cdot;\cdot)$ 计算（这称为**核技巧（kernel trick）**），而**不必直接计算高维甚至无穷维特征空间中的内积**。
+
+使用核函数后，对偶问题式（10）可以重写为：
+
+$$\max_{\mathbf{a}} \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \kappa(\mathbf{x}_i;\mathbf{x}_j) \quad s.t. \quad \sum_{i=1}^m a_i y_i = 0, \quad a_i \geq 0, \quad i=1,2,...,m \qquad (11)$$
+
+求解后得到的模型可以表示为：
+
+$$f(\mathbf{x}) = \mathbf{w}^T \phi(\mathbf{x}) + b = \sum_{i=1}^m a_i y_i \phi(\mathbf{x}_i)^T \phi(\mathbf{x}) + b = \sum_{i=1}^m a_i y_i \kappa(\mathbf{x}_i;\mathbf{x}) + b$$
+
+这条式子表明了**模型最优解可通过训练样本的核函数展开**，称为**支持向量展式（support vector expansion）**。
 
 #### 核函数的性质
+
+**核函数定理**：给定一个输入空间 $\mathcal{X}$，函数 $\kappa(\cdot;\cdot)$ 是定义在 $\mathcal{X} \times \mathcal{X}$ 上的**对称函数**。当且仅当对于任意数据集 $D = \{\mathbf{x}_1,\mathbf{x}_2,...,\mathbf{x}_m\}$, 对应的**核矩阵（kernel matrix）**都是半正定的时候，$\kappa$ 是核函数。
+
+核矩阵是一个规模为 $m \times m$ 的函数矩阵，每个元素都是一个函数，比如第 $i$ 行 $j$ 列的元素是 $\kappa(\mathbf{x}_i,\mathbf{x}_j)$。也即是说，**任何一个核函数都隐式地定义了一个称为“再生核希尔伯特空间（Reproducing Kernel Hilbert Space，简称RKHS）”的特征空间**。
+
+做映射的初衷是希望**样本在新特征空间上线性可分**，新特征空间的好坏直接决定了支持向量机的性能，但是我们并**不知道怎样的核函数是合适的**。一般来说有以下几种常用核函数：
+
+| 名称 | 表达式 | 参数 |
+|:-:|:-:|:-:|
+| 线性核 | $\kappa(v_1,v_2)=<v_1,v_2>$ |-|
+| 多项式核 | $\kappa(v_1,v_2)=(<v_1,v_2>)^d$ | $d \geq 1$为多项式的次数，d=1时退化为线性核 |
+| 高斯核（亦称RBF核） | $\kappa(v_1,v_2)=\exp (-\frac{\Vert v_1-v_2 \Vert ^2}{2\sigma^2})$ | $\sigma>0$ 为高斯核的带宽（width） |
+| 拉普拉斯核 | $\kappa(v_1,v_2)=\exp (-\frac{\Vert v_1-v_2 \Vert}{\sigma})$| $\sigma>0$ |
+| Sigmoid核 | $\kappa(v_1,v_2)=\tanh(\beta<v_1,v_2>+\theta)$ | $tanh$ 为双曲正切函数，$\beta>0,\theta<0$ |
+
+特别地，**文本数据一般用线性核**，**情况不明可尝试高斯核**。
+
+除了这些常用的核函数，要**产生核函数还可以使用组合的方式**：
+
+- 若 $\kappa_1$ 和 $\kappa_2$ 都是核函数，则 $a\kappa_1+b\kappa_2$ 也是核函数，其中 $a>0,b>0$。
+
+- 若 $\kappa_1$ 和 $\kappa_2$ 都是核函数，则其直积 $\kappa_1 \otimes \kappa_2(\mathbf{x},\mathbf{z}) = \kappa_1(\mathbf{x},\mathbf{z})\kappa_2(\mathbf{x},\mathbf{z})$ 也是核函数。
+
+- 若 $\kappa_1$是核函数，则对于任意函数 $g(\mathbf{x})$，$\kappa(\mathbf{x},\mathbf{z}) = g(\mathbf{x}) \kappa_1(\mathbf{x},\mathbf{z}) g(\mathbf{z})$ 也是核函数。
+
 
 ## 习题
 
@@ -296,13 +331,14 @@ $= \kappa(\mathbf{v}_1,\mathbf{v}_2)$
 > 问：试设计一个能显著减少SVM中支持向量的数目而不显著降低泛化性能的方法。
 
 
-分享一些蛮不错的问题和讲解：
+分享一些蛮不错的问题和讲解，我在笔记中参考了部分内容：
 
 - [支持向量机(SVM)是什么意思？](https://www.zhihu.com/question/21094489)
 - [支持向量机中的函数距离和几何距离怎么理解？](https://www.zhihu.com/question/20466147)
 - [几何间隔为什么是离超平面最近的点到超平面的距离？](https://www.zhihu.com/question/30217705)
 - [支持向量机(support vector machine)--模型的由来](http://blog.csdn.net/zhangping1987/article/details/21931663)
 - [SMO优化算法（Sequential minimal optimization）](http://www.cnblogs.com/jerrylead/archive/2011/03/18/1988419.html)
+- [机器学习有很多关于核函数的说法，核函数的定义和作用是什么？](https://www.zhihu.com/question/24627666)
 - [Linear SVM 和 LR 有什么异同？](https://www.zhihu.com/question/26768865)
 - [SVM计算最优分类超平面时是否使用了全部的样本数据？](https://www.zhihu.com/question/46862433)
 - [现在还有必要对SVM深入学习吗？](https://www.zhihu.com/question/41066458)
