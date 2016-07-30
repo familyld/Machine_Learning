@@ -417,7 +417,7 @@ KKT条件可以理解为下面几点：
 
 - LR可以直接用于**多分类任务**，SVM则需要进行扩展（但更常用one-vs-rest）
 
-- LR使用的对率损失是光滑的单调递减函数，**无法导出支持向量**；SVM使用的hinge损失有“零区域”，因此不需用到所有训练样本。
+- LR使用的对率损失是光滑的单调递减函数，**无法导出支持向量**，解依赖于所有样本，因此预测开销较大；SVM使用的hinge损失有“零区域”，因此**解具有稀疏性**（书中没有具体说明这句话的意思，但按我的理解是解出的拉格朗日乘子 $\mathbf{a}$ 具有稀疏性，而不是权重向量 $\mathbf{w}$），从而不需用到所有训练样本。
 
 在实际运用中，LR更常用于大规模数据集，速度较快；SVM适用于规模小，维度高的数据集。
 
@@ -446,6 +446,45 @@ $$\min_f \Omega(f) + C \sum_{i=1}^m \ell(f(\mathbf{x}_i), y_i) \qquad (17)$$
 另一方面，$\Omega(f)$ 还可以帮我们削减假设空间，从而降低模型过拟合的风险。从这个角度来看，可以称 $\Omega(f)$ 为**正则化（regularization）项**，$C$ 为正则化常数。正则化可以看作一种**罚函数法**，即对不希望出现的结果施以惩罚，从而使优化过程趋向于期望的目标。
 
 $L_p$ 范数是常用的正则化项，其中 $L_2$ 范数 $\Vert \mathbf{w} \Vert_2$ 倾向于 $\mathbf{w}$ 的分量取值尽量稠密，即非零分量个数尽量多； $L_0$ 范数 $\Vert \mathbf{w} \Vert_0$ 和 $L_1$ 范数 $\Vert \mathbf{w} \Vert_1$ 则倾向于 $\mathbf{w}$ 的分量取值尽量稀疏，即非零分量个数尽量少。
+
+## 支持向量回归
+
+同样是利用线性模型 $f(\mathbf{x}) = \mathbf{w}^T\mathbf{x}+b$
+ 来预测，回归问题希望预测值和真实值 $y$ 尽可能相近，而不是像分类任务那样，旨在令不同类的预测值可以被划分开。
+
+传统的回归模型计算损失时直接取真实值和预测值的差，**支持向量回归（Support Vector Regression，简称SVR）**则不然。SVR假设我们能容忍最多有 $\epsilon$ 的偏差，**只有当真实值和预测值之间相差超出了 $\epsilon$ 时才计算损失**。
+
+![SVR](http://www.saedsayad.com/images/SVR_2.png)
+
+如图所示，以SVR拟合出的直线为中心，两边各构建出一个宽度为 $\epsilon$ 的地带，落在这个**宽度为 $2\epsilon$ 的间隔带**内的点都被认为是预测正确的。
+
+因此，问题可以形式化为目标函数：
+
+$$\min_{\mathbf{w},b} \frac{1}{2} \Vert \mathbf{w} \Vert^2 + C \sum_{i=1}^m \ell_{\epsilon}(f(\mathbf{x}_i) - y_i) \qquad (18)$$
+
+其中 $C$ 为正则化常数， $\ell_{\epsilon}$ 称为 **$\epsilon-$不敏感损失（$\epsilon-$insensitive loss）**函数。定义如下：
+
+$$\ell_{、epsilon}(z)=
+\left
+\{\begin{array}
+\\0, \quad if\ |z| \leq \epsilon;
+\\|z|-\epsilon, \quad otherwise.
+\end{array}
+\right.$$
+
+引入松弛变量 $\xi_i$ 和 $\hat{\xi}_i$，分别表示**间隔带两侧的松弛程度**，它们**可以设定为不同的值**。此时，目标函数式（18）可以重写为：
+
+$$\min_{\mathbf{w},b} \frac{1}{2} \Vert \mathbf{w} \Vert^2 + C \sum_{i=1}^m (\xi_i + \hat{\xi}_i) \qquad (19)\\
+s.t.\ f(\mathbf{x}_i) - y_i \leq \epsilon + \xi_i,\\
+\qquad \quad y_i - f(\mathbf{x}_i) \leq \epsilon + \xi_i\\
+\qquad \qquad \qquad \xi_i \geq 0, \hat{\xi}_i \geq 0, i=1,2,...,m.
+$$
+
+注意这里有四组 $m$ 个约束条件，所以对应地有四组拉格朗日乘子。
+
+接下来就是用拉格朗日乘子法获得问题对应的拉格朗日函数，然后求偏导再代回拉格朗日函数，得到对偶问题。然后使用SMO算法求解拉格朗日乘子，最后得到模型，这里不一一详述了。
+
+特别地，**SVR中同样有支持向量的概念**，解具有稀疏性，所以训练好模型后不需保留所有训练样本。此外，SVR同样可以通过引入核函数来获得拟合非线性分布数据的能力。
 
 ## 习题
 
