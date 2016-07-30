@@ -17,8 +17,8 @@ def ExponentialLoss(z):
 
 def LogisticLoss(z):
     return np.log2(1+np.exp(-z))
-    
-    
+
+
 z = [i/1000 for i in range(-2000,2000,5)]
 
 y0 = [ZeroOneLoss(i) for i in z]
