@@ -486,6 +486,24 @@ $$
 
 特别地，**SVR中同样有支持向量的概念**，解具有稀疏性，所以训练好模型后不需保留所有训练样本。此外，SVR同样可以通过引入核函数来获得拟合非线性分布数据的能力。
 
+## 核方法
+
+无论是SVM还是SVR，如果不考虑偏置项b，我们会发现模型总能表示为核函数的线性组合。更一般地，存在**表示定理（representer theorem）**：
+
+令 $\mathbb{H}$ 为核函数 $\kappa$ 对应的再生希尔伯特空间， $\Vert h \Vert_{\mathbb{H}}$ 表示 $\mathbb{H}$ 空间中关于 $h$ 的范数，对于任意**单调递增**函数 $\Omega:[0,\infty] \longmapsto \mathbb{R}$ 和任意**非负**损失函数 $\ell:\mathbb{R}^m \longmapsto [0,\infty]$，优化问题
+
+$$min_{h \in \mathbb{H}} F(h) = \Omega(\Vert h \Vert_mathbb{H}) + \ell(h(mathbf{x}_1,h(mathbf{x}_2,...,h(mathbf{x}_m)) \qquad (20)$$
+
+的解总可写为：
+
+$$h^x(\mathbf{x}) = \sum_{i=1}^m a_i \kappa(\mathbf{x},\mathbf{x}_i)$$
+
+这个定理表明，对于形如式（20），旨在最小化损失和正则化项之和的优化问题，解都可以表示为核函数的线性组合。
+
+基于核函数的学习方法，统称为**核方法（kernal methods）**。最常见的就是通过**核化**（引入核函数），将线性学习器扩展为非线性学习器。这不仅限于SVM，事实上LR和LDA也都可以采用核函数，只是SVM使用hinge损失，解具有稀疏性所以用得更多。
+
+书中还介绍了如何核化LDA，这部分不作详细记录了。
+
 ## 习题
 
 #### 6.1
