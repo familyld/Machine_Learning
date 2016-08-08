@@ -12,7 +12,7 @@ $$P(H(n) \leq k) = \sum_{i=0}^k \binom{n}{i} p^i (1-p)^{n-i}$$
 
 $$P(H(n) \leq (p-\delta)n) \leq e^{-2\delta^2n}$$
 
-试推导出式（8.3）
+> 试推导出式（8.3）
 
 #### 8.2
 
