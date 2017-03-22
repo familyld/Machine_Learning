@@ -1,5 +1,5 @@
 # 线性模型
-
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 给定一个包含d个属性的实例 $\mathbf{x} = (x_1;x_2;...;x_d)$，**线性模型（linear model）**的原理是学得一个可以通过属性的线性组合来进行预测的函数，也即：
 
 $$f(\mathbf{x}) = w_1x_1 + w_2x_2 + ... + w_dx_x + b$$
