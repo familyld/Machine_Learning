@@ -1,5 +1,6 @@
-# 神经网络
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+# 神经网络
+
 在机器学习中，**神经网络（neural networks）**一般是指“神经网络学习”。所谓神经网络，目前用得最广泛的一个定义是“神经网络是由**具有适应性的简单单元**组成的广泛**并行互连的网络**，它的组织能够模拟生物神经系统**对真实世界物体所做出的反应**”。它是一种**黑箱模型**，解释性较差，但效果很好。目前已有一些工作尝试改善神经网络的可解释性。
 
 这一章的内容大致如下：

@@ -1,5 +1,6 @@
-# 聚类
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+# 聚类
+
 在**无监督学习（unsupervised learning）**中，训练样本的标记信息是未知的，学习的目的是揭示数据的内在性质及规律，为进一步的数据分析提供基础。这类学习任务中研究最多，应用最广的是**聚类（clustering）**。
 
 这一章的内容大致如下：

@@ -1,5 +1,6 @@
-# 集成学习
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+# 集成学习
+
 **集成学习（ensemble learning）**通过构建并结合多个学习期来完成学习任务，有时也被称为**多分类器系统（multi-classifier system）**、**基于委员会的学习（committee-based learning）**等。
 
 这一章的内容大致如下：
