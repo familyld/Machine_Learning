@@ -1,5 +1,5 @@
 # 贝叶斯分类器
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+
 **贝叶斯分类器（Bayes Classifier）**是一种通过最大化后验概率进行单点估计的分类器。
 
 这一章的内容大致如下：
