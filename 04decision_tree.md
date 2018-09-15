@@ -1,6 +1,5 @@
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 # 决策树
-
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 由于决策树的内容我之前有做过一个比较详细的[PPT分享](https://github.com/familyld/Machine_Learning/blob/master/resource/Decision%20tree.pdf)，所以这一章的笔记暂时不打算花太大精力，主要是理清最重要的定义和思路，更详细的之后有时间会考虑补上。
 
 这一章的内容大致如下：

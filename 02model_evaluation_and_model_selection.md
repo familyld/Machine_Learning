@@ -1,6 +1,5 @@
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 # 模型评估与选择
-
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 ## 误差
 
 在分类任务中，通常把错分的样本数占样本总数的比例称为**错误率（error rate）**。比如m个样本有a个预测错了，错误率就是`a/m`；与错误率相对的有**精度（accuracy）**，或者说正确率，数值上等于1-错误率。
