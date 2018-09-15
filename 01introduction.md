@@ -1,7 +1,5 @@
 # 绪论
 
-注：Github的Markdown渲染器不支持渲染latex公式，Chrome浏览器用户请安装[GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima)插件，谢谢你的关注。无法科学上网的同学可以找到resource文件夹中的 GitHub with MathJax 0.2.3.crx 文件，下载后拖入到Chrome浏览器插件页安装即可。
-
 ## 什么是机器学习？
 
 人可以通过经验学习，比方说“朝霞不出门，晚霞行千里”，就是通过经验得来的知识。获得知识后，即使在不同的地点，不同的时间，看到不同的霞，我们也能作出正确的判断。那么，机器是否也能学习并利用经验，从而对一些未出现过的情况，在不通过显式编程（人作出判断并告诉机器）的情况下也能作出正确的预测呢？答案是可以的，这就是**机器学习**。
