@@ -1,6 +1,6 @@
 # 支持向量机
 
-**支持向量机（Support Vector Machine，简称SVM）**是一种针对二分类任务设计的分类器，它的理论相对神经网络模型来说更加完备和严密，并且效果显著，结果可预测，是非常值得学习的模型。
+**支持向量机**（Support Vector Machine，简称SVM）是一种针对二分类任务设计的分类器，它的理论相对神经网络模型来说更加完备和严密，并且效果显著，结果可预测，是非常值得学习的模型。
 
 这一章的内容大致如下：
 
@@ -26,58 +26,58 @@
 
 在SVM中，我们试图找到**处于两类样本正中间的超平面**，因为这个超平面**对训练数据局部扰动的容忍性最好**，新样本最不容易被误分类。也就是说这个超平面**对未见示例的泛化能力最强**。
 
-![SVM](http://research.microsoft.com/en-us/um/people/manik/projects/trade-off/figs/svm2.PNG)
+![SVM](http://xiaofengshi.com/2018/11/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0-SVM/svm_softmargin.gif)
 
-上图的实线就是划分超平面，在线性模型中可以通过方程 $\mathbf{w}^T\mathbf{x}+b=0$ 来描述，在二维样本空间中就是一条直线。图中的 $\phi(\mathbf{x})$ 是使用了核函数进行映射，这里暂且不讨论。$\mathbf{w}$ 是线性模型的权重向量（又叫**投影向量**），也是**划分超平面的法向量，决定着超平面的方向**。偏置项 $b$ 又被称为 **位移项，决定了超平面和空间原点之间的距离**。
+上图的实线就是划分超平面，在线性模型中可以通过方程 $\mathbf{w}^T\mathbf{x}+b=0$ 来描述，在二维样本空间中就是一条直线。图中的 $\phi(\mathbf{x})$ 是使用了核函数进行映射，这里先不讨论。$\mathbf{w}$ 是线性模型的权重向量（又叫**投影向量**），也是**划分超平面的法向量，决定着超平面的方向**。偏置项 $b$ 又被称为 **位移项，决定了超平面和空间原点之间的距离**。
 
 假设超平面能够将所有训练样本正确分类，也即对于所有标记为+1的点有 $\mathbf{w}^T\mathbf{x}+b>0$，所有标记为-1的点有 $\mathbf{w}^T\mathbf{x}+b<0$。只要这个超平面存在，那么我们必然可以对 $\mathbf{w}$ 和 $b$ 进行适当的**线性放缩**，使得：
 
 $$\mathbf{w}^T\mathbf{x}+b\geq+1,\quad y_i = +1$$
 $$\mathbf{w}^T\mathbf{x}+b\leq-1,\quad y_i = -1$$
 
-而SVM中定义**使得上式等号成立的训练样本点**就是**支持向量（support vector）**（如果叫作**支持点**可能更好理解一些，因为事实上就是样本空间中的数据点，但因为我们在表示数据点的时候一般写成向量形式，所以就称为支持向量），它们是距离超平面最近的几个样本点，也即上面图中两条虚线上的点（但图中存在比支持向量距离超平面更近的点，这跟**软间隔**有关，这里暂不讨论）。
+而SVM中定义**使得上式等号成立的训练样本点**就是**支持向量（support vector）**（如果叫作**支持点**可能更好理解一些，因为事实上就是样本空间中的数据点，但因为我们在表示数据点的时候一般写成向量形式，所以就称为支持向量），它们是距离超平面最近的几个样本点，也即上面图中两条虚线上的点（图中存在比支持向量距离超平面更近的点，这跟**软间隔**有关，这里先不讨论）。
 
 在SVM中，我们希望实现的是**最大化两类支持向量到超平面的距离之和**，那首先就得知道怎么计算距离。**怎样计算样本空间中任意数据点到划分超平面的距离**呢？
 
 ![PointToHyperPlane](https://github.com/familyld/Machine_Learning/blob/master/graph/PointToHyperPlane.png?raw=true)
 
-画了一个图，方便讲解。图中蓝色线即超平面，对应直线方程 $\mathbf{w}^T\mathbf{x}+b=0$。投影向量 $\mathbf{w}$垂直于超平面，点 $x$ 对应向量 $\mathbf{x}$，过点 $x$ 作超平面的垂线，交点 $x_0$ 对应向量 $\mathbf{x_0}$。假设由点 $x_0$ 指向 点 $x$ 的向量为 $\mathbf{r}$，长度（也即点 $x$ 与超平面的距离）为 $r$。有两种方法计算可以计算出 $r$ 的大小：
+画了一个图，方便讲解。图中蓝色线即超平面，对应直线方程 $\mathbf{w}^T\mathbf{x}+b=0$。投影向量 $\mathbf{w}$垂直于超平面，点 $x$ 对应向量 $\mathbf{x}$，过点 $x$ 作超平面的垂线，交点 $x_0$ 对应向量 $\mathbf{x_0}$。假设**由点 $x_0$ 指向 点 $x$ 的向量**为 $\mathbf{r}$，长度（也即点 $x$ 与超平面的距离）为 $r$。有两种方法计算可以计算出 $r$ 的大小：
 
 ##### 方法1：向量计算
 
-> 由向量加法定义可得 $\mathbf{x} = \mathbf{x_0} + \mathbf{r}$。
+由向量加法定义可得 $\mathbf{x} = \mathbf{x_0} + \mathbf{r}$。
 
-> 那么向量 $\mathbf{r}$ 等于什么呢？它等于这个方向的单位向量乘上 $r$，也即有 $\mathbf{r} = \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$
+那么向量 $\mathbf{r}$ 等于什么呢？它等于这个方向的单位向量乘上 $r$，也即有 $\mathbf{r} = \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$
 
-> 因此又有 $\mathbf{x} = \mathbf{x_0} + \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$。
+因此又有 $\mathbf{x} = \mathbf{x_0} + \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$。
 
-> 由于点 $x_0$ 在超平面上，所以有 $\mathbf{w}^T\mathbf{x_0}+b=0$
+由于点 $x_0$ 在超平面上，所以有 $\mathbf{w}^T\mathbf{x_0}+b=0$
 
-> 由 $\mathbf{x} = \mathbf{x_0} + \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$ 可得 $\mathbf{x_0} = \mathbf{x} - \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$，代入直线方程消去 $\mathbf{x_0}$：
+由 $\mathbf{x} = \mathbf{x_0} + \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$ 可得 $\mathbf{x_0} = \mathbf{x} - \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r$，代入直线方程消去 $\mathbf{x_0}$：
 
-> $$\mathbf{w}^T\mathbf{x_0}+b
+$$\mathbf{w}^T\mathbf{x_0}+b
 = \mathbf{w}^T(\mathbf{x} - \frac{\mathbf{w}}{\Vert \mathbf{w} \Vert} \cdot r)+b
 = 0$$
 
-> 简单变换即可得到:
+简单变换即可得到:
 
-> $$r = \frac{\mathbf{w}^T\mathbf{x}+b}{\Vert \mathbf{w} \Vert}$$
+$$r = \frac{\mathbf{w}^T\mathbf{x}+b}{\Vert \mathbf{w} \Vert}$$
 
-> 又因为我们取距离为正值，所以要加上绝对值符号：
+又因为我们取距离为正值，所以要加上绝对值符号：
 
-> $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
+$$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
 
 ##### 方法2：点到直线距离公式
 
-> 假设直线方程为 $ax_1 + bx_2 + c= 0$，那么有点到直线距离公式：
+假设直线方程为 $ax_1 + bx_2 + c= 0$，那么有点到直线距离公式：
 
-> $$r = \frac{|ax + bx_2 + c|}{\sqrt{a^2+b^2}}$$
+$$r = \frac{|ax + bx_2 + c|}{\sqrt{a^2+b^2}}$$
 
-> 令 $\mathbf{w} = (a,b)$，$\mathbf{x} = (x_1,x_2)$，则可以把 $ax_1 + bx_2$ 写成向量形式 $\mathbf{w}^T\mathbf{x}$。把截距项设为$b$，则直线方程变为 $\mathbf{w}^T\mathbf{x}+b=0$，代入距离公式可得：
+令 $\mathbf{w} = (a,b)$，$\mathbf{x} = (x_1,x_2)$，则可以把 $ax_1 + bx_2$ 写成向量形式 $\mathbf{w}^T\mathbf{x}$。把截距项设为$b$，则直线方程变为 $\mathbf{w}^T\mathbf{x}+b=0$，代入距离公式可得：
 
-> $$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\sqrt{\mathbf{w}^T\mathbf{w}}} = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
+$$r = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\sqrt{\mathbf{w}^T\mathbf{w}}} = \frac{|\mathbf{w}^T\mathbf{x}+b|}{\Vert \mathbf{w} \Vert}$$
 
-> 该式扩展到多维情况下也是通用的。
+该式扩展到多维情况下也是通用的。
 
 #### 间隔
 
@@ -88,7 +88,7 @@ $$\mathbf{w}^T\mathbf{x}+b = -1,\quad y_i = -1$$
 
 代入前面的距离公式可以得到支持向量到超平面的距离为 $\frac{1}{\Vert \mathbf{w} \Vert}$。
 
-定义**间隔（margin）**为**两个异类支持向量到超平面的距离之和**：
+定义**间隔**（margin）为**两个异类支持向量到超平面的距离之和**：
 
 $$\gamma = 2 \cdot \frac{1}{\Vert \mathbf{w} \Vert} = \frac{2}{\Vert \mathbf{w} \Vert}$$
 
@@ -96,15 +96,15 @@ SVM的目标便是找到**具有最大间隔（maximum margin）**的划分超�
 
 $$\max_{\mathbf{w},b} \frac{2}{\Vert \mathbf{w} \Vert} \quad s.t. \quad y_i(\mathbf{w}^T\mathbf{x}+b) \geq 1, \quad  i=1,2,...,m$$
 
-约束部分指的是全部样本都被正确分类，此时标记乘上预测值必定是一个大于等于1的数值。
+约束部分指的是全部样本都被正确分类，此时标记值（$+1$ 或 $-1$）乘上预测值（$\geq +1$ 或 $\leq -1$）必定是一个 $\geq 1$ 的数值。
 
-看上去间隔只与 $\mathbf{w}$ 有关，但实际上位移项 $b$ 也通过约束影响着 $\mathbf{w}$ 的取值，进而对间隔产生影响。
+看上去间隔大小只与 $\mathbf{w}$ 有关，但实际上位移项 $b$ 也通过约束影响着 $\mathbf{w}$ 的取值，进而对间隔产生影响。
 
 由于最大化 $\Vert \mathbf{w} \Vert^{-1}$ 等价于最小化 $\Vert \mathbf{w} \Vert^{2}$，所以可以重写**目标函数**为：
 
 $$\min_{\mathbf{w},b} \frac{1}{2} \Vert \mathbf{w} \Vert^2 \quad s.t. \quad y_i(\mathbf{w}^T\mathbf{x}+b) \geq 1, \quad  i=1,2,...,m\qquad(1)$$
 
-这便是**支持向量机的基本型**。
+引入 $\frac{1}{2}$ 是为了求导时可以约去平方项的2，这便是**支持向量机的基本型**。
 
 特别地，还有以下定义：
 
@@ -118,31 +118,36 @@ $$\min_{\mathbf{w},b} \frac{1}{2} \Vert \mathbf{w} \Vert^2 \quad s.t. \quad y_i(
 
 首先为式（1）的每条约束添加拉格朗日乘子 $a_i \geq 0$（对应m个样本的m条约束），得到该问题的拉格朗日函数：
 
-$$L(\mathbf{w},b,\mathbf{a}) = \frac{1}{2} \Vert \mathbf{w} \Vert^2 + \sum_{i=1}^m a_i(1-y_i(\mathbf{w}^T\mathbf{x}+b))\qquad(2)$$
+$$L(\mathbf{w},b,\mathbf{a}) = \frac{1}{2} \Vert \mathbf{w} \Vert^2 + \sum_{i=1}^m a_i(1-y_i(\mathbf{w}^T\mathbf{x}_i+b))\qquad(2)$$
 
 其中 $\mathbf{a} = (a_1;a_2;...;a_m)$，对拉格朗日函数求 $\mathbf{w}$ 和 $b$ 的偏导，并令偏导为0可以得到：
 
-$$\quad\mathbf{w} = \sum_{i=1}^m a_i y_i \mathbf{x}_i\qquad(3)$$
-$$0 = \sum_{i=1}^m a_i y_i\qquad(4)$$
+$$\begin{split}
+\mathbf{w} &= \sum_{i=1}^m a_i y_i \mathbf{x}_i\qquad(3)\\
+0 &= \sum_{i=1}^m a_i y_i\qquad(4)
+\end{split}$$
 
-将式（3）代入式（2）可以消去 $\mathbf{w}$ 和 $b$，然后再考虑式（4）的约束就得到了式（1）的**对偶问题（dual problem）**：
+将式（3）代入式（2）可以消去 $\mathbf{w}$，又因为式（2）中 $b$ 的系数是 $a_i y_i$，由式（4）可知 $b$ 也可以消去。然后再考虑式（4）的约束就得到了式（1）的**对偶问题**（dual problem）：
 
-$$\max_{\mathbf{a}} \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j \quad s.t. \quad \sum_{i=1}^m a_i y_i = 0, \quad a_i \geq 0, \quad i=1,2,...,m \qquad (5)$$
+$$\begin{split}
+\max_{\mathbf{a}} \sum_{i=1}^m a_i - \frac{1}{2} \sum_{i=1}^m\sum_{j=1}^m a_i a_j y_i y_j \mathbf{x}_i^T \mathbf{x}_j&\\
+\text{s.t.} \sum_{i=1}^m a_i y_i &= 0, \quad a_i \geq 0, \quad i=1,2,...,m \qquad (5)
+\end{split}$$
 
 只要求出对偶问题的解 $\mathbf{a}$，就可以推出 $\mathbf{w}$ 和 $b$，从而得到模型（不过实际计算时一般不这样做，特别是需要用核函数映射到高唯空间时，因为映射后做内积很困难，而用少量支持向量进行表示，在原始空间进行计算显然更优，这点在后续章节会详细讲解）：
 
-$$f(\mathbf{x}) = \mathbf{w}^T \mathbf{x} + b\\
-\qquad = \sum_{i=1}^m a_i y_i \mathbf{x}_i^T \mathbf{x} + b \qquad (6)$$
+$$\begin{split}
+f(\mathbf{x}) &= \mathbf{w}^T \mathbf{x} + b\\
+&= \sum_{i=1}^m a_i y_i \mathbf{x}_i^T \mathbf{x} + b \qquad (6)
+\end{split}$$
 
 注意，由于式（1）的约束条件是**不等式约束**，所以求解过程要求满足**KKT（Karush-Kuhn-Tucker）条件**：
 
-$$\left
-\{\begin{array}
-\\a_i \geq 0;
-\\y_i f(\mathbf{x}_i)-1 \geq 0;
-\\a_i (y_i f(\mathbf{x}_i)-1) = 0.
-\end{array}
-\right.$$
+$$\begin{cases}
+&a_i \geq 0;\\
+&y_i f(\mathbf{x}_i)-1 \geq 0;\\
+&a_i (y_i f(\mathbf{x}_i)-1) = 0.\\
+\end{cases}$$
 
 KKT条件说明了，对任何一个样本来说，要么对应的拉格朗日乘子为0，要么函数间隔等于1（即式（1）的约束条件取等号）。如果拉格朗日乘子为0，则这个样本对式（6）毫无贡献，不会影响到模型；如果函数间隔为1，则表明这个样本位于最大间隔边界上，是一个支持向量。它揭示了SVM的一个重要性质：**最终模型只与支持向量有关，因此训练完成后，大部分的训练样本都不需保留**（支持向量被保留下来用于计算新样本的预测值，也即式（6））。
 
