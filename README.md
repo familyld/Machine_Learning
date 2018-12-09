@@ -1,6 +1,6 @@
 # Machine_Learning
 
-注：Github的Markdown渲染器不支持渲染latex公式，Chrome浏览器用户请安装[GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima)插件，谢谢你的关注。无法科学上网的同学可以找到resource文件夹中的 GitHub with MathJax 0.2.3.crx 文件，下载后拖入到Chrome浏览器插件页安装即可。
+注：Github的Markdown渲染器不支持渲染latex公式，Chrome浏览器用户请安装[GitHub with MathJax](https://chrome.google.com/webstore/detail/github-with-mathjax/ioemnmodlmafdkllaclgeombjnmnbima)插件，谢谢你的关注。无法科学上网的同学可以找到resource文件夹中的 GitHub with MathJax 0.2.3.crx 文件，下载后拖入到Chrome浏览器插件页安装即可。有部分公式过于复杂，该浏览器插件也无法覆盖，所以推荐还是下载到本地查看，之后会有渲染为 pdf 的打算。使用Sublime Text的朋友可以用 **OmniMarkupPreviewer** 插件来浏览，所有公式经过检查都是显示正常的~
 
 本项目主体是对周志华教授的《机器学习》一书所做的笔记，以及书中习题的试答（**周教授未提供习题的标准答案，笔者仅作试答，如有谬误，欢迎指出。习题中带\*星号的题目难度较大。**）。除此之外，本项目还会逐渐引入一些对其他精彩的机器学习相关文章的摘录与点评。想了解《机器学习》一书不妨查看周教授的[主页](http://cs.nju.edu.cn/zhouzh/zhouzh.files/publication/MLbook2016.htm)，上面除了简介之外也包含了该书各印刷版的勘误情况。
 
