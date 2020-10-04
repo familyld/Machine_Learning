@@ -120,7 +120,11 @@ $$\begin{aligned}
  &d^* = \max_{\mathbf{\lambda}} \min_{\mathbf{w}, b}\mathcal{L}(\mathbf{w},b,\mathbf{\lambda}) \leq \min_{\mathbf{w}, b} \max_{\mathbf{\lambda}}\mathcal{L}(\mathbf{w},b,\mathbf{\lambda}) = p^*
 \end{aligned}$$
 
-也即对偶问题的解是原问题的解的下确界，这也成为**弱对偶性（weak duality）**。但是我们要求原问题的最小值，得到一个下界没有什么用。我们真正需要的是**强对偶性**，也即 $d^* = p^*$，此时我们便可以通过求解对偶问题直接得到原问题的最优解。
+也即对偶问题的解是原问题的解的下确界，这也称为**弱对偶性（weak duality）**，证明如下：
+
+对于任意 $\mathbf{\lambda}$ 均有 $\min_{\mathbf{w}, b}\mathcal{L}(\mathbf{w},b,\mathbf{\lambda}) \leq \min_{\mathbf{w}, b} \max_{\mathbf{\lambda}} \mathcal{L}(\mathbf{w},b,\mathbf{\lambda})$。对于 $\mathbf{\lambda} = \arg\max_{\mathbf{\lambda}} \min_{\mathbf{w}, b}\mathcal{L}(\mathbf{w},b,\mathbf{\lambda})$ 亦然，得证。
+
+由于我们要求的是原问题的最小值，得到一个下界没有什么用。我们真正需要的是**强对偶性**，也即 $d^* = p^*$，此时我们便可以通过求解对偶问题直接得到原问题的最优解。
 
 为了得到强对偶性，我们需要用到 [Slater's Condition](https://en.wikipedia.org/wiki/Slater_condition)：
 
@@ -387,7 +391,7 @@ $$\begin{align}
 
 画成图其实就是这样：
 
-![SMO](https://raw.githubusercontent.com/familyld/Machine_Learning/master/graph/SMO.jpg)
+<img src="https://raw.githubusercontent.com/familyld/Machine_Learning/master/graph/SMO.jpg" style="zoom:50%" />
 
 可行的 $\lambda^{(i)}$ 和 $\lambda^{(j)}$ 都必须在 $[0, C]$ 的“盒子”内，并且在直线 $\lambda^{(i)}y^{(i)}+\lambda^{(j)}y^{(j)}=K$ 上。直线与“盒子”的交点会给 $\lambda^{(j)}$ 确定上下界，假设分别是 $L$ 和 $H$（根据直线方程会出现不同情况，比如直线刚好是“盒子”的对角线，那就会有 $L=0, H=C$）。由直线方程可知：
 
@@ -400,4 +404,17 @@ $$\begin{align}
 
 将式（20）代入到式（17）中，我们就得到了一个单变量优化问题，令目标函数对 $\lambda^{(j)}$ 的偏导数为零，即可求出最优的 $\lambda^{(j)}$。当然，为了满足约束，$\lambda^{(j)}$ 必须在 $[L, H]$ 区间内，所以还需要进行**裁剪（clipping）**，将得到的 $\lambda^{(j)}$ 代入到式（20）即可得到 $\lambda^{(i)}$。重复多次选取 $\lambda^{(i)}$ 和 $\lambda^{(j)}$，并求解子问题就构成了 SMO 算法。
 
-最后，还有两个值得注意的点。第一个是**如何选取** $\lambda^{(i)}$ 和 $\lambda^{(j)}$？最简单的当然是随机选取，但是实践中为了加快收敛速度，一般会采用某种启发式，比方说选取违背 KKT 条件最大的 $\lambda^{(i)}$，然后再选取与 $\lambda^{(i)}$ 间隔最大的 $\lambda^{(j)}$。第二个是**如何判断收敛**？从前面的推导我们已经知道了 SVM 的最优解必然满足 KKT 条件，实践中我们会设定一个阈值 $\epsilon$，如果对 KKT 条件违背的程度低于 $\epsilon$，则认为算法已经收敛。
+最后，还有两个值得注意的点：
+
+第一个是**如何选取** $\lambda^{(i)}$ 和 $\lambda^{(j)}$？最简单的当然是随机选取，但是实践中为了加快收敛速度，一般会采用某种启发式使得每次对目标函数的改变能最大化，比方说选取违背 KKT 条件最大的 $\lambda^{(i)}$，然后再选取与 $\lambda^{(i)}$ 间隔最大的 $\lambda^{(j)}$。
+
+第二个是**如何判断收敛**？从前面的推导我们已经知道了 SVM 的最优解必然满足 KKT 条件，实践中我们会设定一个阈值 $\epsilon$，如果对 KKT 条件中互补松弛性质违背的程度低于 $\epsilon$，则认为算法已经收敛。
+
+在实践中，SMO 算法还有很多小的细节，这里只关注思路而不一一赘述，更多的细节可以看 2017 年出版的[《Support Vector Machines Succinctly》](https://www.syncfusion.com/ebooks/support_vector_machines_succinctly)一书。
+
+## 参考：
+
+1. [《Support Vector Machines Succinctly》](https://www.syncfusion.com/ebooks/support_vector_machines_succinctly)
+2. [CS229 Lecture notes - Part Ⅴ Support Vector Machines](http://cs229.stanford.edu/notes/cs229-notes3.pdf) by Andrew Ng, Stanford
+3. [Advanced Topics in Machine Learning: COMPGI13 - Lecture 9: Support Vector Machines](http://www.gatsby.ucl.ac.uk/~gretton/coursefiles/Slides5A.pdf) by Arthur Gretton, UCL
+
