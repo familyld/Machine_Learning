@@ -1,9 +1,8 @@
 # 支持向量机 Support Vector Machine (SVM)
 
-最近在复习机器学习理论，SVM 是一个很有代表性的模型，涉及到不少基础知识点。判断自己是否充分理解一个模型/方法最好的方式就是复述出来，看能否讲清楚，所以干脆就针对 SVM 写一篇文章。
+最近在回顾机器学习的一些经典方法，顺带推推公式以免生疏。检验自己是否充分理解一个方法最好的方式就是复述出来，看能否讲清楚。SVM 是机器学习中的一个代表性模型，涉及到不少基础知识点，所以干脆就针对 SVM 写一篇文章。
 
-理解 SVM 的难点主要在优化的求解问题上，如何解 SVM 的凸二次规划问题？对偶问题、Slater's 条件、强弱对偶性、KKT 条件这些概念是什么？为什么要引入以及怎么用？这篇文章都会一一讲清楚。
-
+写 SVM 的文章太多了，但总有些概念或者细节会被忽视，有些术语可能就只是被频繁地提到，但没有说为什么要用或者具体怎么用？写这篇文章也是希望可以把思路理清晰一些，这样当我们遇到类似的优化问题时就能想起这些工具。当然，因为个人的研究方向不是优化，所以这篇文章不会具体地谈到如何证明 Slater's 条件能得出强对偶性或者如果由 Slater's 条件得到 KKT 条件等等这类问题，但是会讲到在 SVM 的问题里为什么需要用到它们以及怎么用。
 
 SVM 有三宝，间隔、对偶、核技巧。一般来说 SVM 可以分为三种类别，也即：
 
@@ -11,7 +10,7 @@ SVM 有三宝，间隔、对偶、核技巧。一般来说 SVM 可以分为三�
 2. Kernal SVM
 3. Soft-margin SVM
 
-这篇笔记也从最原汁原味的硬间隔 SVM 开始推导，然后引入核技巧（非 SVM 独有），最后分析软间隔 SVM。
+这篇推导也从最原汁原味的硬间隔 SVM 开始推导，然后引入核技巧，软间隔，最后讲解用于求解 SVM 对偶型的 SMO 算法。
 
 ## Hard-margin SVM
 
@@ -168,6 +167,8 @@ $$\begin{align}
 
 > If: <br>1. primal problem **convex** and<br>2. constraint functions satisfy **Slater's conditions**<br> then **strong duality** holds. If in addition: <br> - functions $f_i$, $h_i$ are **differentiable**<br> then KKT conditions necessary and sufficient for **optimality**.
 
+**注**：可微是因为 KKT 还要求最优解有偏导数为零（Stationarity）的性质，这恰恰也是用拉格朗日乘子法求解时的一个步骤。
+
 我们现在知道了对偶问题式（4）与原问题式（3）有相同的最优解，并且最优解满足 KKT 条件，那就可以开始求解目标函数了。我们首先解 $\min_{\mathbf{w}, b}\mathcal{L}(\mathbf{w},b,\mathbf{\lambda})$，写出目标函数对参数 $b$ 和 $\mathbf{w}$ 的偏导数，并令其为零：
 
 $$\begin{align}
@@ -238,6 +239,8 @@ $$\begin{aligned}
 
 实践中为了提高鲁棒性，参数 $b$ 往往会采用所有支持向量算出的均值。可以看出最优参数 $\mathbf{w}^{*^T}$ 和 $b^*$ 都是样本点的加权组合，权值为 $\lambda^{(i)}$。由互补松弛性质可得，$1-y^{(i)}(\mathbf{w}^T\mathbf{x}^{(i)}+b) \neq 0 \Leftrightarrow \lambda^{(i)}=0$，所以（通常情况下）大多数样本都是无用的，模型只与满足约束 $1-y^{(i)}(\mathbf{w}^T\mathbf{x}^{(i)}+b)=0$ 的样本点有关，我们把这些样本点称为**支持向量**。
 
+**支持向量的数量一定很少吗？** 不一定，它只是求解 SVM 的一个副产物。支持向量很多也是完全有可能的，有时候这可能意味着过拟合。
+
 那么到底**为什么要求解对偶问题而非原问题**呢？原因主要有以下几个方面：
 
 1. **求解高效**：原问题需求解 $d+1$ 个变量，对偶问题只需求解 $N$ 个变量（早期的机器学习研究中数据集普遍较小，所以可能会有 $d \gg N$ 的情况），而且对偶问题有一些高效的解法（比如：SMO）；
@@ -280,6 +283,8 @@ $$\begin{align}
 $$\begin{aligned}
 w^*\phi(\mathbf{x}^{(j)})+b^* = \sum_{i=1}^N \lambda^{(i)} y^{(i)}\kappa(\mathbf{x}^{(i)}, \mathbf{x}^{(j)}) + y^{(k)}-\sum_{i=1}^N \lambda^{(i)} y^{(i)} \kappa(\mathbf{x}^{(i)}, \mathbf{x}^{(k)})
 \end{aligned}$$
+
+核函数怎么选网上也有不少文章给出了分析，这里不再赘述。
 
 ## Soft-margin SVM
 
@@ -385,7 +390,7 @@ $$\begin{align}
 \left\{\begin{array}{l}
 &0 \leq \lambda^{(i)} \leq C\\
 &0 \leq \lambda^{(j)} \leq C\\
-&\lambda^{(i)}y^{(i)}+\lambda^{(j)}y^{(j)}=-\sum_{i=1}^N \lambda^{(i)} y^{(i)}+\lambda^{(i)}y^{(i)}+\lambda^{(j)}y^{(j)} \triangleq K
+&\lambda^{(i)}y^{(i)}+\lambda^{(j)}y^{(j)}=\lambda^{(i)}y^{(i)}+\lambda^{(j)}y^{(j)}-\sum_{k=1}^N \lambda^{(k)} y^{(k)} \triangleq K
 \end{array}\right.\tag{19}
 \end{align}$$
 
@@ -404,17 +409,43 @@ $$\begin{align}
 
 将式（20）代入到式（17）中，我们就得到了一个单变量优化问题，令目标函数对 $\lambda^{(j)}$ 的偏导数为零，即可求出最优的 $\lambda^{(j)}$。当然，为了满足约束，$\lambda^{(j)}$ 必须在 $[L, H]$ 区间内，所以还需要进行**裁剪（clipping）**，将得到的 $\lambda^{(j)}$ 代入到式（20）即可得到 $\lambda^{(i)}$。重复多次选取 $\lambda^{(i)}$ 和 $\lambda^{(j)}$，并求解子问题就构成了 SMO 算法。
 
-最后，还有两个值得注意的点：
+最后，还有三个值得注意的点：
 
-第一个是**如何选取** $\lambda^{(i)}$ 和 $\lambda^{(j)}$？最简单的当然是随机选取，但是实践中为了加快收敛速度，一般会采用某种启发式使得每次对目标函数的改变能最大化，比方说选取违背 KKT 条件最大的 $\lambda^{(i)}$，然后再选取与 $\lambda^{(i)}$ 间隔最大的 $\lambda^{(j)}$。
+第一个是**如何初始化 $\mathbf{\lambda}$**？SMO 是直接将全部的拉格朗日因子初始化为0。
 
-第二个是**如何判断收敛**？从前面的推导我们已经知道了 SVM 的最优解必然满足 KKT 条件，实践中我们会设定一个阈值 $\epsilon$，如果对 KKT 条件中互补松弛性质违背的程度低于 $\epsilon$，则认为算法已经收敛。
+第二个是**如何选取** $\lambda^{(i)}$ 和 $\lambda^{(j)}$？最简单的当然是随机选取，但是实践中为了加快收敛速度，一般会采用某种启发式使得每次对目标函数的改变能最大化，比方说选取违背 KKT 条件最大的 $\lambda^{(i)}$，然后再选取与 $\lambda^{(i)}$ 间隔最大的 $\lambda^{(j)}$。
 
-在实践中，SMO 算法还有很多小的细节，这里只关注思路而不一一赘述，更多的细节可以看 2017 年出版的[《Support Vector Machines Succinctly》](https://www.syncfusion.com/ebooks/support_vector_machines_succinctly)一书。
+第三个是**如何判断收敛**？从前面的推导我们已经知道了 SVM 的最优解必然满足 KKT 条件，实践中我们会设定一个阈值 $\epsilon$，如果对 KKT 条件中互补松弛性质违背的程度低于 $\epsilon$，就可以认为算法已经收敛到最优解了。
 
-## 参考：
+SMO 算法高效的秘诀一个在于它将问题简化为容易解决的子问题，另一个就是优化子问题时选取更新变量的启发式对收敛起到了加速作用。又因为 SMO 每次只选择两个拉格朗日乘子进行更新，所以计算开销和存储开销的问题都能大大缓解。
 
-1. [《Support Vector Machines Succinctly》](https://www.syncfusion.com/ebooks/support_vector_machines_succinctly)
-2. [CS229 Lecture notes - Part Ⅴ Support Vector Machines](http://cs229.stanford.edu/notes/cs229-notes3.pdf) by Andrew Ng, Stanford
+在实践中，SMO 算法还有很多小的细节，这里只关注思路而不一一赘述。
+
+## 总结
+
+最后总结一下：
+
+- SVM 本质上是从几何的角度切入，期望找出最鲁棒的一个分类超平面，把这个目标转化为了求最大间隔的问题。
+
+- 在最大化间隔的同时对分类结果进行约束就得到了 SVM 的原问题，又因为对偶问题有着更优良的性质，所以我们更倾向于求解对偶问题。
+
+- Slater's 条件给出的强对偶性表明求解对偶问题就可以得到原问题的解，而 KKT 条件则允许我们使用拉格朗日乘子法来求解这个带不等式约束的问题，给出了最优解需要满足的性质。
+
+- 使用拉格朗日乘子法消除掉其它变量后得到的对偶型中存在形如 $\mathbf{x}^{(i)^T}\mathbf{x}^{(j)}$ 的内积项，因此可以方便地引入核函数，利用核技巧将 SVM 拓展为非线性分类模型。
+
+- 为了避免过拟合，可以允许一部分样本违背原问题的约束，甚至误分类，这就是软间隔。我们引入了松弛变量 $\mathbf{\zeta}$ 来刻画样本违背约束的程度，并在新的目标函数中对其施加惩罚，然后同样可以推导出对偶型并求解对偶问题。
+
+- 由于使用求解器的计算&存储开销较大，所以实践中常用 SMO 算法求解对偶问题。SMO 采用的是一种类似坐标上升的思路，但为了保证约束条件成立，会每次选取两个拉格朗日乘子进行优化。
+
+## 参考
+
+1. [《Support Vector Machines Succinctly》](https://www.syncfusion.com/ebooks/support_vector_machines_succinctly) - Alexandre Kowalczyk, 2017（**非常推荐**）
+2. [CS229 Lecture notes - Part Ⅴ Support Vector Machines](http://cs229.stanford.edu/notes/cs229-notes3.pdf) by Andrew Ng, Stanford（**经典课程**）
 3. [Advanced Topics in Machine Learning: COMPGI13 - Lecture 9: Support Vector Machines](http://www.gatsby.ucl.ac.uk/~gretton/coursefiles/Slides5A.pdf) by Arthur Gretton, UCL
+4. [机器学习-白板推导系列(六)-支持向量机SVM（Support Vector Machine）](https://www.bilibili.com/video/BV1Hs411w7ci) - shuhuai008 - B站（**良心 up 主**）
+5. [从零推导支持向量机(SVM)](https://zhuanlan.zhihu.com/p/31652569) - 张皓的文章 - 知乎
+6. [超详细SVM（支持向量机）知识点，面试官会问的都在这了](https://zhuanlan.zhihu.com/p/76946313) - 韦伟的文章 - 知乎
+7. [SVM---这可能是最直白的推导了](https://zhuanlan.zhihu.com/p/86290583) - 文建华的文章 - 知乎
+
+以上材料都是很好的参考材料，但因为作者的背景和水平各有不同，所以侧重点也会有所不同，说法可能会有出入，或者有一些小的错漏，这篇文章亦然，欢迎指正。
 
