@@ -1,3 +1,4 @@
+#! https://zhuanlan.zhihu.com/p/266533885
 # 支持向量机 Support Vector Machine (SVM)
 
 最近在回顾机器学习的一些经典方法，顺带推推公式以免生疏。检验自己是否充分理解一个方法最好的方式就是复述出来，看能否讲清楚。SVM 是机器学习中的一个代表性模型，涉及到不少基础知识点，所以干脆就针对 SVM 写一篇文章。
@@ -7,14 +8,14 @@
 SVM 有三宝，间隔、对偶、核技巧。一般来说 SVM 可以分为三种类别，也即：
 
 1. Hard-margin SVM
-2. Kernal SVM
+2. Kernel SVM
 3. Soft-margin SVM
 
 这篇推导也从最原汁原味的硬间隔 SVM 开始推导，然后引入核技巧，软间隔，最后讲解用于求解 SVM 对偶型的 SMO 算法。
 
 ## Hard-margin SVM
 
-![SVM](http://xiaofengshi.com/2018/11/11/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0-SVM/svm_softmargin.gif)
+![SVM](https://pic4.zhimg.com/80/v2-e055ddb1d9fba54bcd85819db81587ca.png)
 
 首先，SVM 最早是作为针对二分类任务设计的，给定数据集 
 
@@ -247,11 +248,11 @@ $$\begin{aligned}
 2. **核技巧**：对偶问题中用到了 $\mathbf{x}^{(i)^{T}}\mathbf{x}^{(k)}$，也即特征向量的内积，**便于使用核技巧**，隐式地将特征向量投影到高维甚至无穷维来计算，从而可以解决非线性分类问题（**主要原因**）；
 3. **计算高效**：对偶问题可以求出 $\lambda^{(i)}$，因为模型仅与支持向量有关，我们可以基于支持向量计算分类结果。利用核技巧就不需要显式地将特征向量投影到高维，直接与支持向量计算内积即可达到相同的效果。
 
-## Kernal SVM
+## Kernel SVM
 
 首先，[核方法](https://en.wikipedia.org/wiki/Kernel_method)是一类使用了[核函数](https://en.wikipedia.org/wiki/Positive-definite_kernel)的算法，包括 SVM，Gaussian processes，PCA，ridge regression，spectral clustering 等等。核函数有很多种，它们的特点就是可以在数据的原始表示空间 $\mathcal{X}$ 下计算它们在高维特征空间 $\mathcal{V}$ 下的相似性而无需显式地将其映射到 $\mathcal{V}$，也即用 $\kappa(\mathbf{x}^{(i)}, \mathbf{x}^{(j)})$ 替换 $\phi(\mathbf{x}^{(i)})^T\phi(\mathbf{x}^{(j)})$。这种使用核函数计算相似性的方法称为**核技巧（kernel trick）**。我们平常使用的神经网络等模型都是显式地对样本 $\mathbf{x}^{(i)}$ 进行映射，为此我们需要设定模型架构 $\phi(\mathbf{x}^{(i)})$，而核方法需要选择的则是核函数 $\kappa(\mathbf{x}^{(i)}, \mathbf{x}^{(j)})$。
 
-![example](https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Kernel_trick_idea.svg/750px-Kernel_trick_idea.svg.png)
+![example](https://pic4.zhimg.com/80/v2-4efd5e6ca85897dc61e7492268cea642.png)
 
 以上图为例，左边是数据的原始表示空间，两类数据是线性不可分的。但如果我们将其映射到右边的高维情况，它们就可以被一个超平面区分开。这里用到的映射函数 $\phi(\mathbf{x}^{(i)})=(\mathbf{x}^{(i)}_1, \mathbf{x}^{(i)}_2, \mathbf{x}^{(i)^2}_1+\mathbf{x}^{(i)^2}_2)$，对应的核函数是 $\kappa(\mathbf{x}^{(i)}, \mathbf{x}^{(j)}) = \mathbf{x}^{(i)^T}\mathbf{x}^{(j)} + \Vert \mathbf{x}^{(i)} \Vert^2\Vert \mathbf{x}^{(j)} \Vert^2$，不妨验证一下：
 
@@ -266,7 +267,7 @@ $$\begin{aligned}
 
 一些常见的核函数如下表所示：
 
-![常见核函数](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1601724121789&di=6c91bc65769e77b3b9dfafd9b74dccbe&imgtype=0&src=http%3A%2F%2Fimage.mamicode.com%2Finfo%2F201709%2F20180111003000860489.png)
+![常见核函数](https://pic4.zhimg.com/80/v2-cab80be1d10a0f98131a46ffb51141cc.png)
 
 将核函数用到 SVM 中就得到了 Kernel SVM，目标函数是：
 
@@ -396,7 +397,7 @@ $$\begin{align}
 
 画成图其实就是这样：
 
-<img src="https://raw.githubusercontent.com/familyld/Machine_Learning/master/graph/SMO.jpg" style="zoom:50%" />
+<img src="https://pic4.zhimg.com/80/v2-cc2bd3b1348c492ae4a02dff362f27b6.png" style="zoom:50%" />
 
 可行的 $\lambda^{(i)}$ 和 $\lambda^{(j)}$ 都必须在 $[0, C]$ 的“盒子”内，并且在直线 $\lambda^{(i)}y^{(i)}+\lambda^{(j)}y^{(j)}=K$ 上。直线与“盒子”的交点会给 $\lambda^{(j)}$ 确定上下界，假设分别是 $L$ 和 $H$（根据直线方程会出现不同情况，比如直线刚好是“盒子”的对角线，那就会有 $L=0, H=C$）。由直线方程可知：
 
